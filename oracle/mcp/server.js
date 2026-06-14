@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Townhall Oracle MCP Server — Flow B (Agentic)
+ * ZoneProof Oracle MCP Server — Flow B (Agentic)
  *
  * Exposes parcel query tools to any MCP-compatible LLM (Claude, etc).
  * When the oracle returns HTTP 402, this server autonomously pays HBAR
@@ -327,7 +327,7 @@ server.tool(
 
       if (res.status === 404) {
         return {
-          content: [{ type: "text", text: `No rezoning history found for PIN ${pin}. This parcel has no recorded petitions on Townhall.` }],
+          content: [{ type: "text", text: `No rezoning history found for PIN ${pin}. This parcel has no recorded petitions on ZoneProof.` }],
         };
       }
 
@@ -418,4 +418,4 @@ server.tool(
 // ── Start ─────────────────────────────────────────────────────────────────────
 const transport = new StdioServerTransport();
 await server.connect(transport);
-process.stderr.write("Townhall Oracle MCP server ready (stdio)\n");
+process.stderr.write("ZoneProof Oracle MCP server ready (stdio)\n");

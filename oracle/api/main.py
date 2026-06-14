@@ -18,7 +18,7 @@ from oracle.api.routes import events, parcels, petitions, health
 from oracle.api.middleware.x402 import X402Middleware
 
 app = FastAPI(
-    title="Townhall Oracle API",
+    title="ZoneProof Oracle API",
     description="Oracle data layer — change events, parcel history, petition registry",
     version="1.0.0",
     docs_url="/docs",

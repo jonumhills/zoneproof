@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Dark background -->
+  <rect width="32" height="32" rx="7" fill="#0a0f1a"/>
+  <!-- Teal "Z" mark -->
+  <text x="16" y="23" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="20" fill="#38bdf8">Z</text>
+  <!-- Teal dot bottom-right (proof mark) -->
+  <circle cx="24" cy="24" r="3" fill="#38bdf8"/>
+</svg>

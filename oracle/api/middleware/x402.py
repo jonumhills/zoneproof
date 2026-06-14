@@ -1,5 +1,5 @@
 """
-x402 payment middleware for Townhall Oracle API.
+x402 payment middleware for ZoneProof Oracle API.
 
 Flow:
   1. Client calls a protected endpoint (no X-Payment header)
@@ -55,7 +55,7 @@ def _payment_required_response(resource: str) -> JSONResponse:
                     "network":           "testnet",
                     "maxAmountRequired": str(PAYMENT_TINYBARS),
                     "resource":          resource,
-                    "description":       "Townhall Oracle — parcel rezoning history",
+                    "description":       "ZoneProof Oracle — parcel rezoning history",
                     "mimeType":          "application/json",
                     "payTo":             RECEIVER_ACCOUNT,
                     "maxTimeoutSeconds": MAX_TX_AGE_SECS,

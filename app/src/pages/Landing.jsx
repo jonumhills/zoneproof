@@ -93,9 +93,9 @@ export default function Landing() {
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.35), rgba(99,102,241,0.2))', border: '1px solid rgba(14,165,233,0.4)' }}>
-            <span className="text-base">🏛️</span>
+            <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-5 h-5" />
           </div>
-          <span className="font-black text-lg tracking-wider text-white">TOWNHALL</span>
+          <span className="font-black text-lg tracking-wider text-white">ZONEPROOF</span>
         </div>
 
         <div className="hidden md:flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold"
@@ -104,12 +104,20 @@ export default function Landing() {
           ETHGlobal NYC 2026
         </div>
 
-        <button
-          onClick={() => navigate('/map')}
-          className="px-5 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105"
-          style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', boxShadow: '0 4px 20px rgba(14,165,233,0.4)' }}>
-          Open Map →
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/tech')}
+            className="hidden md:block px-4 py-2 rounded-xl text-sm font-semibold text-sky-300 hover:text-white transition-colors"
+            style={{ border: '1px solid rgba(14,165,233,0.25)' }}>
+            How It Works
+          </button>
+          <button
+            onClick={() => navigate('/map')}
+            className="px-5 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105"
+            style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', boxShadow: '0 4px 20px rgba(14,165,233,0.4)' }}>
+            Open Map →
+          </button>
+        </div>
       </nav>
 
       {/* ── Hero ── */}
@@ -305,8 +313,8 @@ export default function Landing() {
       {/* ── Footer ── */}
       <footer className="border-t border-white/5 py-8 px-6 text-center text-gray-600 text-xs">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="text-base">🏛️</span>
-          <span className="font-black text-gray-500 tracking-wider">TOWNHALL</span>
+          <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-4 h-4 opacity-50" />
+          <span className="font-black text-gray-500 tracking-wider">ZONEPROOF</span>
         </div>
         <div>Built for ETHGlobal NYC 2026 · Chainlink CRE + Hedera + Wake County GIS</div>
         <div className="mt-1">

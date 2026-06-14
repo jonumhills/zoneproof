@@ -244,7 +244,7 @@ function ParcelPanel({ pin, onClose, onParcelLoaded, mapRef }) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(22);
       doc.setTextColor(255, 255, 255);
-      doc.text('TOWNHALL', M, 36);
+      doc.text('ZONEPROOF', M, 36);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
@@ -766,7 +766,7 @@ function ParcelPanel({ pin, onClose, onParcelLoaded, mapRef }) {
           <div className="m-5 p-4 rounded-xl text-sm text-gray-400"
             style={{ background: 'rgba(148,163,184,0.07)', border: '1px solid rgba(148,163,184,0.15)' }}>
             <div className="font-semibold mb-1 text-gray-300">No data found</div>
-            <div className="text-xs text-gray-500">This parcel has no recorded data in Townhall.</div>
+            <div className="text-xs text-gray-500">This parcel has no recorded data in ZoneProof.</div>
           </div>
         )}
 
@@ -1118,7 +1118,7 @@ function AiPanel({ onHighlightFeatures, onClose }) {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xl">🤖</span>
-            <span className="font-black text-white tracking-wide">TOWNHALL AI</span>
+            <span className="font-black text-white tracking-wide">ZONEPROOF AI</span>
           </div>
           <div className="text-[10px] text-gray-500 mt-0.5">Wake County zoning assistant</div>
         </div>
@@ -1535,16 +1535,23 @@ export default function MapPage() {
           background: 'linear-gradient(to bottom, rgba(5,10,16,0.88) 0%, transparent 100%)',
         }}>
 
-        <a href="/" className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(14,165,233,0.2)', border: '1px solid rgba(14,165,233,0.3)' }}>
-            <span className="text-base">🏛️</span>
-          </div>
-          <div className="hidden sm:block leading-none">
-            <div className="text-white font-black text-sm">Townhall</div>
-            <div className="text-gray-500 text-[10px]">Wake County · 434k parcels</div>
-          </div>
-        </a>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <a href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: 'rgba(14,165,233,0.2)', border: '1px solid rgba(14,165,233,0.3)' }}>
+              <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-5 h-5" />
+            </div>
+            <div className="hidden sm:block leading-none">
+              <div className="text-white font-black text-sm">ZoneProof</div>
+              <div className="text-gray-500 text-[10px]">Wake County · 434k parcels</div>
+            </div>
+          </a>
+          <a href="/tech"
+            className="hidden lg:block px-3 py-1 rounded-lg text-[10px] font-semibold transition-colors hover:text-white"
+            style={{ color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }}>
+            How It Works
+          </a>
+        </div>
 
         {/* Search */}
         <div className="flex-1 max-w-lg relative">
