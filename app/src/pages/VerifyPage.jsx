@@ -25,7 +25,7 @@ export default function VerifyPage() {
 
       <div className="w-full max-w-lg bg-[#111] border border-slate-800 rounded-2xl overflow-hidden">
 
-        {/* Header bar */}
+        {/* Status bar */}
         <div className={`h-1.5 w-full ${loading ? 'bg-slate-700' : result?.valid ? 'bg-teal-400' : 'bg-red-500'}`} />
 
         <div className="p-8">
@@ -51,13 +51,12 @@ export default function VerifyPage() {
                   </div>
                   <div className="text-xs text-slate-400 mt-0.5">
                     {result.valid
-                      ? 'This report was cryptographically signed by the ZoneProof oracle'
+                      ? 'Signed by zoneproof.eth oracle · Logged on Hedera HCS · NFT receipt minted'
                       : result.reason || 'Signature does not match the ZoneProof oracle'}
                   </div>
                 </div>
               </div>
 
-              {/* Details grid */}
               {result.valid && (
                 <div className="space-y-3">
                   <Row label="Issued by" value={result.oracle_ens} highlight />
@@ -65,10 +64,69 @@ export default function VerifyPage() {
                   <Row label="Property PIN" value={result.pin} />
                   <Row label="Property" value={result.site_address} />
                   <Row label="Generated" value={result.generated_at?.replace('T', ' ').replace('Z', ' UTC')} />
+
                   <div className="pt-2 border-t border-slate-800">
                     <div className="text-xs text-slate-500 mb-1">REPORT HASH</div>
                     <div className="font-mono text-xs text-slate-300 break-all">{result.report_hash}</div>
                   </div>
+
+                  {/* HCS Proof */}
+                  {result.hcs_proof && (
+                    <div className="pt-2 border-t border-slate-800">
+                      <div className="text-xs text-teal-600 font-semibold uppercase tracking-wide mb-2">
+                        Hedera Consensus Service Proof
+                      </div>
+                      <div className="bg-[#0a1a1a] border border-teal-900 rounded-lg p-3 space-y-1.5">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">Topic</span>
+                          <span className="text-teal-300 font-mono">{result.hcs_proof.topic_id}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">Sequence #</span>
+                          <span className="text-teal-300 font-mono">{result.hcs_proof.sequence_number}</span>
+                        </div>
+                        {result.hcs_proof.hashscan && (
+                          <a
+                            href={result.hcs_proof.hashscan}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-xs text-teal-400 hover:text-teal-200 underline mt-1"
+                          >
+                            View on HashScan →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* HTS NFT Receipt */}
+                  {result.nft_receipt && (
+                    <div className="pt-2 border-t border-slate-800">
+                      <div className="text-xs text-yellow-600 font-semibold uppercase tracking-wide mb-2">
+                        ZPR NFT Receipt (HTS Token)
+                      </div>
+                      <div className="bg-[#1a1500] border border-yellow-900 rounded-lg p-3 space-y-1.5">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">Token</span>
+                          <span className="text-yellow-300 font-mono">{result.nft_receipt.token_id}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">Serial #</span>
+                          <span className="text-yellow-300 font-mono">{result.nft_receipt.serial}</span>
+                        </div>
+                        {result.nft_receipt.hashscan && (
+                          <a
+                            href={result.nft_receipt.hashscan}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-xs text-yellow-400 hover:text-yellow-200 underline mt-1"
+                          >
+                            View NFT on HashScan →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -86,7 +144,7 @@ export default function VerifyPage() {
         {/* Footer */}
         <div className="px-8 py-4 border-t border-slate-800 flex items-center justify-between">
           <div className="text-xs text-slate-600">
-            Signed with <span className="text-slate-400">zoneproof.eth</span> · Hedera Testnet
+            Signed · HCS logged · HTS minted · Hedera Testnet
           </div>
           <button
             onClick={() => navigate('/')}
@@ -98,9 +156,8 @@ export default function VerifyPage() {
       </div>
 
       <p className="mt-6 text-xs text-slate-700 max-w-sm text-center">
-        The ZoneProof oracle signs every report with its ECDSA key.
-        Resolving <span className="text-slate-500">zoneproof.eth</span> returns the oracle address —
-        if the signature matches, the report is genuine.
+        Every ZoneProof report is signed with ECDSA, logged to Hedera HCS for
+        tamper-proof timestamping, and minted as a ZPR NFT receipt on HTS — no smart contracts required.
       </p>
     </div>
   );

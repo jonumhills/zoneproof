@@ -584,7 +584,7 @@ function ParcelPanel({ pin, onClose, onParcelLoaded, mapRef }) {
 
         const GOLD_BG = [254, 252, 232];
         const GOLD_BD = [253, 224, 71];
-        const BOX_H   = 118;
+        const BOX_H   = 158;
         const QR_SIZE = 80;
         const TEXT_W  = CW - QR_SIZE - 28; // text column width
 
@@ -603,11 +603,19 @@ function ParcelPanel({ pin, onClose, onParcelLoaded, mapRef }) {
         doc.text('Issued by  zoneproof.eth', M + 14, y + 18);
 
         // Field rows — left text column
+        const hcsLabel = seal.hcs_sequence != null
+          ? `Seq #${seal.hcs_sequence} on ${seal.hcs_topic_id}`
+          : 'pending';
+        const nftLabel = seal.nft_serial != null
+          ? `ZPR Serial #${seal.nft_serial} (${seal.nft_token_id})`
+          : 'pending';
         const sealRows = [
           ['ORACLE',     seal.oracle_address],
           ['GENERATED',  seal.generated_at?.replace('T', ' ').replace('Z', ' UTC').slice(0, 22)],
           ['REPORT HASH',seal.report_hash],
           ['SIGNATURE',  (seal.oracle_signature || '').slice(0, 46) + '…'],
+          ['HCS PROOF',  hcsLabel],
+          ['ZPR NFT',    nftLabel],
         ];
         const rowStart = y + 32;
         sealRows.forEach(([k, v], i) => {
