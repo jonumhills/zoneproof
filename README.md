@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="app/public/ZoneProof Logo.svg" alt="ZoneProof" width="220" />
+  <img src="app/public/zoneproof-wordmark.svg" alt="ZoneProof" width="320" />
   <h1>ZoneProof</h1>
   <p><strong>Decentralized Land Registry & Due Diligence Protocol</strong></p>
   <p>

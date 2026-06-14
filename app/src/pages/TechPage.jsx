@@ -22,12 +22,8 @@ export default function TechPage() {
       {/* Navbar */}
       <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 py-4"
         style={{ background: 'rgba(5,10,16,0.9)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <button onClick={() => navigate('/')} className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(14,165,233,0.2)', border: '1px solid rgba(14,165,233,0.3)' }}>
-            <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-5 h-5" />
-          </div>
-          <span className="font-black text-sm tracking-wider text-white">ZONEPROOF</span>
+        <button onClick={() => navigate('/')} className="flex items-center">
+          <img src="/zoneproof-wordmark.svg" alt="ZoneProof" className="h-9 w-auto" />
         </button>
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/map')}

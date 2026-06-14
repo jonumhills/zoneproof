@@ -90,12 +90,8 @@ export default function Landing() {
       {/* ── Navbar ── */}
       <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 py-4"
         style={{ background: 'rgba(5,10,16,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(14,165,233,0.08)' }}>
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.35), rgba(99,102,241,0.2))', border: '1px solid rgba(14,165,233,0.4)' }}>
-            <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-5 h-5" />
-          </div>
-          <span className="font-black text-lg tracking-wider text-white">ZONEPROOF</span>
+        <div className="flex items-center">
+          <img src="/zoneproof-wordmark.svg" alt="ZoneProof" className="h-10 w-auto" />
         </div>
 
         <div className="hidden md:flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold"
@@ -313,8 +309,7 @@ export default function Landing() {
       {/* ── Footer ── */}
       <footer className="border-t border-white/5 py-8 px-6 text-center text-gray-600 text-xs">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-4 h-4 opacity-50" />
-          <span className="font-black text-gray-500 tracking-wider">ZONEPROOF</span>
+          <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-5 h-5 opacity-40" />
         </div>
         <div>Built for ETHGlobal NYC 2026 · Chainlink CRE + Hedera + Wake County GIS</div>
         <div className="mt-1">

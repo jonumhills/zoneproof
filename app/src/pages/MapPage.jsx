@@ -1537,10 +1537,7 @@ export default function MapPage() {
 
         <div className="flex items-center gap-3 flex-shrink-0">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(14,165,233,0.2)', border: '1px solid rgba(14,165,233,0.3)' }}>
-              <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-5 h-5" />
-            </div>
+            <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="h-8 w-8 flex-shrink-0" />
             <div className="hidden sm:block leading-none">
               <div className="text-white font-black text-sm">ZoneProof</div>
               <div className="text-gray-500 text-[10px]">Wake County · 434k parcels</div>
