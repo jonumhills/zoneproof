@@ -169,8 +169,10 @@ async def _verify_hedera_payment(tx_id: str) -> tuple:
 
             data = r.json()
             transactions = data.get("transactions", [])
+            print(f"[x402] mirror node: {len(transactions)} tx(s) for {mirror_tx_id}")
 
             for tx in transactions:
+                print(f"[x402]   result={tx.get('result')} ts={tx.get('consensus_timestamp')}")
                 if tx.get("result") != "SUCCESS":
                     continue
 
@@ -178,7 +180,10 @@ async def _verify_hedera_payment(tx_id: str) -> tuple:
                 if time.time() - consensus_ts > MAX_TX_AGE_SECS:
                     return False, "Payment too old (max 5 minutes)"
 
-                for transfer in tx.get("transfers", []):
+                transfers = tx.get("transfers", [])
+                print(f"[x402]   transfers={transfers}")
+                print(f"[x402]   want account={RECEIVER_ACCOUNT} amount>={PAYMENT_TINYBARS}")
+                for transfer in transfers:
                     if (
                         transfer.get("account") == RECEIVER_ACCOUNT
                         and transfer.get("amount", 0) >= PAYMENT_TINYBARS
@@ -211,6 +216,7 @@ class X402Middleware(BaseHTTPMiddleware):
             scheme  = payment.get("scheme", "")
             tx_hash = payment.get("txHash", "")  # EVM path (HashPack via window.ethereum)
             tx_id   = payment.get("txId",   "")  # Native Hedera path (MCP server)
+            print(f"[x402] incoming: keys={list(payment.keys())} scheme={scheme!r} txId={tx_id!r} txHash={tx_hash!r}")
         except Exception:
             return JSONResponse(
                 status_code=402,

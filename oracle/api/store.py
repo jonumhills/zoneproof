@@ -1,11 +1,15 @@
 """
-JSON-based data store — replaces Supabase while the DB is unavailable.
+Data store for the oracle API.
 
-Loads the four exported JSON files at startup into memory and provides
-the same two query functions that the parcels route uses.
+Parcel/petition lookups (used by routes/parcels.py) query the live
+Postgres DB directly — see oracle/api/db.py. The JSON files below remain
+as an in-memory cache for routes/events.py, which reads the full
+change-event / petition log on every request.
 """
 import json
 import os
+
+from oracle.api.db import query as db_query
 
 _BASE = os.path.join(os.path.dirname(__file__), "..", )   # oracle/
 
@@ -19,86 +23,129 @@ def _load(filename):
         print(f"[store] WARNING: could not load {filename}: {e}")
         return []
 
-# ── Load all tables once at import time ───────────────────────────────────────
-_parcels_raw        = _load("parcels.json")
+# ── Loaded once at import time — used by routes/events.py only ───────────────
 _petitions_raw      = _load("rezoning_petitions.json")
 _change_events_raw  = _load("change_events.json")
-_merkle_batches_raw = _load("merkle_batches.json")
-
-# Index for O(1) lookups
-PARCELS_BY_PIN    = {p["pin"]: p for p in _parcels_raw}
-BATCHES_BY_ID     = {b["batch_id"]: b for b in _merkle_batches_raw}
-
-# change_events indexed by petition_number → list of events
-EVENTS_BY_PETITION: dict = {}
-for ev in _change_events_raw:
-    pn = ev.get("petition_number")
-    if pn:
-        EVENTS_BY_PETITION.setdefault(pn, []).append(ev)
 
 REZONING_PETITIONS = _petitions_raw
 
-print(f"[store] Loaded  parcels={len(PARCELS_BY_PIN):,}  "
-      f"petitions={len(REZONING_PETITIONS):,}  "
-      f"change_events={len(_change_events_raw):,}  "
-      f"merkle_batches={len(_merkle_batches_raw):,}")
+print(f"[store] Loaded  petitions={len(REZONING_PETITIONS):,}  "
+      f"change_events={len(_change_events_raw):,}")
 
 
-# ── Public API (mirrors what parcels.py used to get from db.query) ────────────
+# ── Public API used by routes/parcels.py — backed by live Postgres ───────────
+
+_COMMITTED_EVENT_TYPES = ("new_petition", "petition_status_change", "petition_vote_change")
+
+
+def search_parcels_by_address(query: str, limit: int = 10):
+    """Case-insensitive partial match on site_address."""
+    rows = db_query(
+        """
+        SELECT pin, site_address, city, zipcode, owner, total_value_assd
+        FROM parcels
+        WHERE site_address ILIKE %s
+        LIMIT %s
+        """,
+        (f"%{query.strip()}%", limit),
+    )
+    return rows
+
 
 def get_parcel(pin: str):
-    return PARCELS_BY_PIN.get(pin)
+    rows = db_query("SELECT * FROM parcels WHERE pin = %s LIMIT 1", (pin,))
+    return rows[0] if rows else None
 
 
 def get_parcel_history_peek(pin: str):
     """Free preview — returns only the petition count, no details."""
-    parcel = PARCELS_BY_PIN.get(pin)
-    if not parcel:
+    if not db_query("SELECT 1 FROM parcels WHERE pin = %s LIMIT 1", (pin,)):
         return None
-    petitions = [p for p in REZONING_PETITIONS if pin in (p.get("pins") or [])]
-    on_chain = sum(
-        1 for p in petitions
-        if any(
-            ev.get("committed_at")
-            for ev in EVENTS_BY_PETITION.get(p.get("petition_number", ""), [])
-            if ev.get("event_type") in ("new_petition", "petition_status_change", "petition_vote_change")
-        )
+
+    petitions = db_query(
+        "SELECT petition_number FROM rezoning_petitions WHERE %s = ANY(pins)", (pin,)
     )
-    return {"total_petitions": len(petitions), "on_chain_count": on_chain}
+    petition_numbers = [p["petition_number"] for p in petitions]
+
+    on_chain = 0
+    if petition_numbers:
+        rows = db_query(
+            """
+            SELECT COUNT(DISTINCT petition_number) AS c
+            FROM change_events
+            WHERE petition_number = ANY(%s)
+              AND committed_at IS NOT NULL
+              AND event_type IN %s
+            """,
+            (petition_numbers, _COMMITTED_EVENT_TYPES),
+        )
+        on_chain = rows[0]["c"] if rows else 0
+
+    return {"total_petitions": len(petition_numbers), "on_chain_count": on_chain}
 
 
 def get_parcel_history(pin: str):
-    parcel = PARCELS_BY_PIN.get(pin)
-    if not parcel:
+    parcel_rows = db_query("SELECT * FROM parcels WHERE pin = %s LIMIT 1", (pin,))
+    if not parcel_rows:
         return None
+    parcel = parcel_rows[0]
 
-    # All petitions that list this PIN
-    petitions = [
-        p for p in REZONING_PETITIONS
-        if pin in (p.get("pins") or [])
-    ]
-
-    # Sort descending by meeting_date (None last)
-    petitions.sort(
-        key=lambda p: p.get("meeting_date") or "",
-        reverse=True,
+    # All petitions that list this PIN, most recent meeting first
+    petitions = db_query(
+        """
+        SELECT petition_number, current_zoning, proposed_zoning, status, vote_result,
+               action, meeting_date, meeting_type, address AS petition_address,
+               legislation_url, file_number, first_seen_at
+        FROM rezoning_petitions
+        WHERE %s = ANY(pins)
+        ORDER BY meeting_date DESC NULLS LAST
+        """,
+        (pin,),
     )
+    petition_numbers = [p["petition_number"] for p in petitions]
+
+    # Most-recent committed change_event per petition
+    latest_events = {}
+    if petition_numbers:
+        rows = db_query(
+            """
+            SELECT DISTINCT ON (petition_number)
+                petition_number, batch_id, committed_at, event_type, evm_snapshot_index
+            FROM change_events
+            WHERE petition_number = ANY(%s)
+              AND committed_at IS NOT NULL
+              AND event_type IN %s
+            ORDER BY petition_number, committed_at DESC
+            """,
+            (petition_numbers, _COMMITTED_EVENT_TYPES),
+        )
+        latest_events = {r["petition_number"]: r for r in rows}
+
+    # Join merkle_batches for Hedera TX details
+    batch_ids = [str(e["batch_id"]) for e in latest_events.values() if e.get("batch_id")]
+    batches = {}
+    if batch_ids:
+        rows = db_query(
+            "SELECT batch_id, hedera_evm_tx_hash, hedera_evm_block FROM merkle_batches WHERE batch_id = ANY(%s::uuid[])",
+            (batch_ids,),
+        )
+        batches = {str(r["batch_id"]): r for r in rows}
 
     results = []
     for p in petitions:
         row = {
-            "petition_number":  p.get("petition_number"),
-            "current_zoning":   p.get("current_zoning"),
-            "proposed_zoning":  p.get("proposed_zoning"),
-            "status":           p.get("status"),
-            "vote_result":      p.get("vote_result"),
-            "action":           p.get("action"),
-            "meeting_date":     p.get("meeting_date"),
-            "meeting_type":     p.get("meeting_type"),
-            "petition_address": p.get("address"),
-            "legislation_url":  p.get("legislation_url"),
-            "file_number":      p.get("file_number"),
-            "first_seen_at":    p.get("first_seen_at"),
+            "petition_number":  p["petition_number"],
+            "current_zoning":   p["current_zoning"],
+            "proposed_zoning":  p["proposed_zoning"],
+            "status":           p["status"],
+            "vote_result":      p["vote_result"],
+            "action":           p["action"],
+            "meeting_date":     p["meeting_date"],
+            "meeting_type":     p["meeting_type"],
+            "petition_address": p["petition_address"],
+            "legislation_url":  p["legislation_url"],
+            "file_number":      p["file_number"],
+            "first_seen_at":    p["first_seen_at"],
             # on-chain fields — populated below if change_event exists
             "batch_id":             None,
             "committed_at":         None,
@@ -108,26 +155,17 @@ def get_parcel_history(pin: str):
             "hedera_evm_block":     None,
         }
 
-        # Find the most-recent committed change_event for this petition
-        events = [
-            ev for ev in EVENTS_BY_PETITION.get(p["petition_number"], [])
-            if ev.get("committed_at")
-            and ev.get("event_type") in (
-                "new_petition", "petition_status_change", "petition_vote_change"
-            )
-        ]
-        if events:
-            latest = max(events, key=lambda e: e["committed_at"])
-            row["batch_id"]           = latest.get("batch_id")
-            row["committed_at"]       = latest.get("committed_at")
-            row["event_type"]         = latest.get("event_type")
-            row["evm_snapshot_index"] = latest.get("evm_snapshot_index")
+        latest = latest_events.get(p["petition_number"])
+        if latest:
+            row["batch_id"]           = latest["batch_id"]
+            row["committed_at"]       = latest["committed_at"]
+            row["event_type"]         = latest["event_type"]
+            row["evm_snapshot_index"] = latest["evm_snapshot_index"]
 
-            # Join merkle_batch for Hedera TX details
-            batch = BATCHES_BY_ID.get(latest["batch_id"])
+            batch = batches.get(str(latest["batch_id"])) if latest.get("batch_id") else None
             if batch:
-                row["hedera_evm_tx_hash"] = batch.get("hedera_evm_tx_hash")
-                row["hedera_evm_block"]   = batch.get("hedera_evm_block")
+                row["hedera_evm_tx_hash"] = batch["hedera_evm_tx_hash"]
+                row["hedera_evm_block"]   = batch["hedera_evm_block"]
 
         results.append(row)
 

@@ -73,7 +73,6 @@ const TECH = [
   { name: 'Mapbox', sub: 'Vector Tile Map', color: '#0ea5e9' },
   { name: 'Wake County', sub: 'Live GIS Data', color: '#22c55e' },
   { name: 'Claude AI', sub: 'Zoning Assistant', color: '#a78bfa' },
-  { name: 'ETHGlobal', sub: 'NYC 2026', color: '#f59e0b' },
 ];
 
 const fadeUp = {
@@ -97,10 +96,16 @@ export default function Landing() {
         <div className="hidden md:flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold"
           style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8' }}>
           <span className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-pulse" />
-          ETHGlobal NYC 2026
+          Live on Hedera Testnet
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/problem')}
+            className="hidden md:block px-4 py-2 rounded-xl text-sm font-semibold text-red-400 hover:text-white transition-colors"
+            style={{ border: '1px solid rgba(239,68,68,0.25)' }}>
+            The Problem
+          </button>
           <button
             onClick={() => navigate('/tech')}
             className="hidden md:block px-4 py-2 rounded-xl text-sm font-semibold text-sky-300 hover:text-white transition-colors"
@@ -311,7 +316,7 @@ export default function Landing() {
         <div className="flex items-center justify-center gap-2 mb-2">
           <img src="/zoneproof-favicon.svg" alt="ZoneProof" className="w-5 h-5 opacity-40" />
         </div>
-        <div>Built for ETHGlobal NYC 2026 · Chainlink CRE + Hedera + Wake County GIS</div>
+        <div>Chainlink CRE + Hedera + Wake County GIS</div>
         <div className="mt-1">
           <a href="https://hashscan.io/testnet/contract/0xf3f8945df31ac04c09312e9e472ba7415bf356b4"
             target="_blank" rel="noopener noreferrer"

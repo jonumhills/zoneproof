@@ -14,7 +14,7 @@ from eth_account import Account
 from eth_account.messages import encode_defunct
 from fastapi import APIRouter, HTTPException
 
-from oracle.api.store import get_parcel, get_parcel_history, get_parcel_history_peek
+from oracle.api.store import get_parcel, get_parcel_history, get_parcel_history_peek, search_parcels_by_address
 
 router = APIRouter(tags=["parcels"])
 
@@ -121,6 +121,18 @@ def _log_to_hedera(pin: str, seal: dict) -> dict:
         pass
 
     return extras
+
+
+@router.get("/parcels/search")
+def search_parcels(address: str = "", q: str = ""):
+    """Search parcels by address fragment — free, no payment required."""
+    query = address or q
+    if not query:
+        raise HTTPException(status_code=400, detail="Provide ?address=... or ?q=...")
+    results = search_parcels_by_address(query)
+    if not results:
+        raise HTTPException(status_code=404, detail=f"No parcels found matching '{query}'")
+    return {"results": results, "count": len(results)}
 
 
 @router.get("/parcels/{pin}")

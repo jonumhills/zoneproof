@@ -273,5 +273,5 @@ node server.js
 ---
 
 <div align="center">
-  <sub>Built for ETHGlobal NYC 2026 · Chainlink CRE + Hedera + ENS</sub>
+  <sub>Chainlink CRE + Hedera + ENS</sub>
 </div>

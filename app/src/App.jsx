@@ -3,6 +3,7 @@ import Landing from './pages/Landing.jsx';
 import MapPage from './pages/MapPage.jsx';
 import VerifyPage from './pages/VerifyPage.jsx';
 import TechPage from './pages/TechPage.jsx';
+import ProblemPage from './pages/ProblemPage.jsx';
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/map" element={<MapPage />} />
         <Route path="/verify/:hash" element={<VerifyPage />} />
         <Route path="/tech" element={<TechPage />} />
+        <Route path="/problem" element={<ProblemPage />} />
       </Routes>
     </BrowserRouter>
   );

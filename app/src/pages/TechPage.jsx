@@ -274,7 +274,7 @@ export default function TechPage() {
             Open the Map →
           </button>
           <div className="text-xs text-slate-600 mt-3">
-            Powered by Hedera · Chainlink CRE · ENS · ETHGlobal NYC 2026
+            Powered by Hedera · Chainlink CRE · ENS
           </div>
         </motion.div>
       </div>
