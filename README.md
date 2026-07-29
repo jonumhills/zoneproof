@@ -147,6 +147,8 @@ ZoneProof uses `ScheduleCreateTransaction` to schedule future HCS petition batch
 ### x402 Payments
 Every report download is gated by an HTTP 402 response. The client pays **0.05 HBAR** to the ZoneProof oracle wallet and retries with the transaction ID in an `X-Payment` header. The middleware verifies the payment on the Hedera Mirror Node before serving the report.
 
+All the Hedera Transactions can be viewed from Treasury Account in HashScan: https://hashscan.io/testnet/account/0.0.7952768/operations
+
 ### AI Agent Payments (MCP Server)
 The **ZoneProof MCP Server** exposes parcel query tools to any MCP-compatible AI (Claude, etc.). When the agent receives a 402, it autonomously constructs and submits a `TransferTransaction` using the **Hedera JS SDK** — no human action required.
 
